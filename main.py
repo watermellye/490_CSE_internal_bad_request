@@ -23,14 +23,15 @@ def save_js():
         json.dump(js, fp, ensure_ascii=False)
 
 
-def get(s, des=""):
+def get(s, des="", **args):
     if des == "":
         des = s
     if s in js:
         return js[s]
     v = input(f"请输入{des}：\n").strip()
     try:
-        v = int(v)
+        if "str" not in args or args["str"] != 1:
+            v = int(v)
     except:
         pass
     js[s] = v
@@ -70,13 +71,15 @@ def get_id():
 
 
 def get_course_info():
-    res = requests.post(url=f'https://1.tongji.edu.cn/api/electionservice/student/getTeachClass4Limit?roundId={get_id()}&courseCode={get("course_id", "六位课号")}&studentId={get("student_id", "您的学号")}',
-                        headers=headers,
-                        timeout=100,
-                        verify=False)
+    res = requests.post(
+        url=f'https://1.tongji.edu.cn/api/electionservice/student/getTeachClass4Limit?roundId={get_id()}&courseCode={get("course_id", "六位课号", str=1)}&studentId={get("student_id", "您的学号")}',
+        headers=headers,
+        timeout=100,
+        verify=False)
     res = json.loads(res.text)
     res = res["data"]
-
+    with open("course.json", "w", encoding="utf-8") as fp:
+        json.dump(res, fp, ensure_ascii=False)
     elecClassList = {}
     print(res[0]["courseName"])
     for i in res:
@@ -88,7 +91,7 @@ def get_course_info():
 
     if len(elecClassList) != 1:
         elecClass = input("请从中选择想抢的课的课号：\n")
-        elecClass = elecClassList[f'{get("course_id")}{elecClass}']
+        elecClass = elecClassList[f'{get("course_id", str=1)}{elecClass}']
 
     else:
         elecClass = res[0]["teachClassCode"]
