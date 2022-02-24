@@ -1,4 +1,3 @@
-from email import header
 import requests
 import os
 import sys
@@ -54,7 +53,7 @@ def get_id():
     res = requests.post(url="https://1.tongji.edu.cn/api/electionservice/student/getRounds?projectId=1", headers=headers, timeout=100, verify=False)
     res = json.loads(res.text)
     print(res)
-    res = res["data"]  # 如果在这里报错了，说明你token填错了。
+    res = res["data"]
     ids = []
     for i in res:
         print(f'\nid={i["id"]}\n{i["calendarName"]} {i["name"]}\n{i["beginTime"]} ~ {i["endTime"]}\n')
@@ -116,6 +115,7 @@ def qiangke():
 
 
 first = True
+f443 = 0
 while True:
     try:
         time.sleep(1)
@@ -134,5 +134,10 @@ while True:
             print(f'Succeed: successCourses={res["successCourses"]}')
             break
         first = False
+        f443 = 0
     except:
-        print(f'Failed: 443')
+        f443 += 1
+        print(f'Failed: 443')  # 开局连续报443说明你token或者课号填错了
+        if f443 >= 10:
+            print(f'Failed：token失效或课号填错')
+            break
